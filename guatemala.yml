@@ -1,0 +1,13 @@
+name: guatemala
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - geopandas
+  - geopy
+  - pygeos
+  - jupyterlab
+  - plotly
+  - selenium
+  - contextily
+prefix: D:\miniconda3\envs\guatemala
