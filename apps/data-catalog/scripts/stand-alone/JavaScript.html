@@ -1,0 +1,226 @@
+<script>
+    var data
+    
+    
+    function setData(){
+        google.script.run.withSuccessHandler(function(dataReturned){
+          data = dataReturned.slice();  // copy data to data var
+          populateCards(data);  // initialize app 
+        }).getData()
+    };
+    
+    
+    function populateCards(data) {
+      if(data){
+        generateCards(data)
+      }
+    }
+    
+    
+    function generateCards(data) {
+      // card options
+      typeIcons = {
+        'Tabular': 'bi-bar-chart-fill',
+        'Spatial': 'bi-map-fill',
+        'Report': 'bi-file-text',
+        'Analysis': 'bi-graph-up'
+      }
+    
+      // link options
+      linkIcons = {
+        'View': {'icon': 'bi-eye-fill', 'tooltip': 'View data asset'},
+        'GoTabular': {'icon': 'bi-grid-3x3-gap-fill', 'tooltip': 'Go to data'},
+        'Map': {'icon': 'bi-globe', 'tooltip': 'Map data'}
+      }  
+    
+      // get cardContainer by id
+      var cardContainer = document.getElementById('datasets');
+    
+      // reset contents to facilitate search and filter
+      cardContainer.innerHTML = '';
+    
+      // generate a card for each row in the dataset
+      data.forEach(row => {
+        var datasetTitle = row[0];
+        var datasetType = row[1];
+        var datasetAbstract = row[2];
+        var datasetProvider = row[3];
+        var datasetAccessLink = row[6] == '' ? '#' : row[6];
+        var datasetMappable = row[12];  
+        var datasetTags = row[row.length - 1].split(',');
+        
+        // determine card links to show
+        var visibleCardLinks = ['View'];
+        if(datasetType == 'Tabular'){
+          visibleCardLinks.push('GoTabular')
+        }
+        if(datasetMappable){
+          visibleCardLinks.push('Map')
+        }
+    
+        // update link for buttons
+        var linkDict = {
+          'View': datasetAccessLink, // TODO: update to metadata page
+          'GoTabular': '#',
+          'Map': '#'
+        };  
+    
+        // create card
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.classList.add('mb-3');
+    
+        // card header
+        var cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header';
+    
+        // header icon
+        var headerIcon = document.createElement('i');
+        headerIcon.className = 'bi';
+        headerIcon.classList.add(typeIcons[datasetType]);
+        headerIcon.classList.add('text-muted');
+        headerIcon.classList.add('d-inline-block');
+    
+        // header span
+        var headerSpan = document.createElement('span');
+        headerSpan.innerText = ' ';
+    
+        // header label
+        var headerText = document.createElement('h6');
+        headerText.innerText = datasetType.toUpperCase();
+        headerText.className = 'card-subtitle';
+        headerText.classList.add('text-muted');
+        headerText.classList.add('d-inline-block');
+    
+        // build header
+        cardHeader.appendChild(headerIcon);
+        cardHeader.appendChild(headerSpan);
+        cardHeader.appendChild(headerText);
+        card.appendChild(cardHeader);    
+    
+        // card body
+        var cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+    
+        // card title link
+        var cardTitleLink = document.createElement('a');
+        cardTitleLink.href = datasetAccessLink;
+        if(!datasetAccessLink == ''){
+          cardTitleLink.target = "_blank";  // TODO: remove once opening metadata page
+        };  // END if()    
+    
+        // card title text
+        var cardTitleText = document.createElement('h5');
+        cardTitleText.innerText = datasetTitle;
+        cardTitleText.className = 'card-title';
+        cardTitleText.classList.add('mb-2');
+    
+        // build card title
+        cardTitleLink.appendChild(cardTitleText);
+        cardBody.appendChild(cardTitleLink);
+    
+        // card subtitle
+        var cardSubtitle = document.createElement('h6');
+        cardSubtitle.innerText = datasetProvider;
+        cardSubtitle.className = 'card-subtitle';
+        cardSubtitle.classList.add('text-muted');
+        cardSubtitle.classList.add('mb-2');
+        cardBody.appendChild(cardSubtitle);
+        
+        // card abstract
+        var cardText = document.createElement('p');
+        cardText.innerText = datasetAbstract;
+        cardText.className = 'card-text';
+        cardBody.appendChild(cardText);
+    
+        // card links container
+        var cardLinksDiv = document.createElement('div');
+        cardLinksDiv.className = 'float-end';
+    
+        // card links
+        for (const [key, inDict] of Object.entries(linkIcons)) {
+          // build link
+          var cardLink = document.createElement('a');
+          cardLink.href = linkDict[key];
+          cardLink.target = '_blank';
+          cardLink.className = 'card-link';
+          cardLink.classList.add('link-secondary');
+          cardLink.classList.add('text-decoration-none');
+          cardLink.setAttribute('data-bs-toggle', 'tooltip');
+          cardLink.setAttribute('data-bs-title', inDict['tooltip']);
+    
+          // hide if link is blank
+          if(linkDict[key] == '#'){
+            cardLink.style.display = 'none'
+          }
+          
+          // add icon
+          cardLinkIcon = document.createElement('i');
+          cardLinkIcon.className = 'bi';
+          cardLinkIcon.classList.add(inDict['icon']);
+          cardLinkIcon.classList.add('text-muted');
+    
+          // build link
+          cardLink.appendChild(cardLinkIcon);
+          cardLinksDiv.appendChild(cardLink);
+    
+          // hide if not applicable
+          if(!visibleCardLinks.includes(key)){
+            cardLink.style.display='none'
+          } // END if()
+        }  // END for(linkedIcons)
+    
+        // build card links
+        cardBody.appendChild(cardLinksDiv);   
+    
+        // build card
+        card.appendChild(cardBody);
+    
+        // card footer
+        var cardFooter = document.createElement('div');
+        cardFooter.className = 'card-footer';
+    
+        // card tags
+        datasetTags.forEach(tag =>{
+            var tagSpan = document.createElement('span');
+            tagSpan.innerText = tag.toLowerCase();
+            tagSpan.className = 'badge';
+            tagSpan.classList.add('bg-secondary');
+            tagSpan.classList.add('rounded-pill');
+            tagSpace = document.createElement('span');
+            tagSpace.innerText = ' ';
+            cardFooter.appendChild(tagSpan);
+            cardFooter.appendChild(tagSpace);
+        });  // END datasetTags.forEach()
+    
+        // build card footer
+        card.appendChild(cardFooter);
+    
+        // append card to container
+        cardContainer.appendChild(card);
+    
+      });  // END data.forEach()
+    }; // END populateCards()
+    
+    
+    document.addEventListener('DOMContentLoaded', function(){  
+      // Initialize tooltips https://codepen.io/team/bootstrap/pen/zYBXGwX?editors=0010
+      new bootstrap.Tooltip(document.body, {
+        selector: '[data-bs-toggle="tooltip"]'
+      });
+    
+      // Get data
+      setData();
+    
+      // Search listener
+      document.getElementById('search-datasets').addEventListener('input', function(e) {
+        var userInput = e.target.value.toLowerCase();
+        var searchResults = data.filter(function(r){
+          searchString = r.join(' ').toLowerCase();
+          return searchString.indexOf(userInput) !== -1
+        });
+        populateCards(searchResults);
+      });
+    });
+        
+    </script>

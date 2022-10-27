@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leaflet demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+   integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+   crossorigin=""/>
+
+    <!-- Load Leaflet Locate from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+
+    <!-- Include Sidebar v2 --> 
+    <?!= include('leaflet-sidebar-v2.css') ?>
+
+    <!-- Include custom CSS -->
+    <?!= include('css'); ?>
+
+  </head>
+
+  <body>
+    
+
+
+
+    <div id="map"></div>
+
+    <div id="sidebar" class="leaflet-sidebar">
+      <!-- Nav tabs -->
+      <div class="leaflet-sidebar-tabs">
+          <ul role="tablist"> <!-- top aligned tabs -->
+              <li><a href="#home" role="tab"><i class="bi bi-list"></i></a></li>
+          </ul>
+      </div>
+
+      <!-- Tab panes -->
+      <div class="leaflet-sidebar-content">
+          <div class="leaflet-sidebar-pane" id="home">
+              <h1 class="leaflet-sidebar-header">
+                  Select a Dataset
+              </h1>
+              <br>
+              <form>
+                <select id="selectDataset" class="form-select" aria-label="Select a dataset">
+                  <option selected>Select a dataset</option>
+                </select>
+                <br>
+                <select id="selectAttribute" class="form-select" aria-label="Select an attribute">
+                  <option selected>Select an attribute</option>
+                </select>
+                <br>
+                <div id='datasetDescription'></div>
+                <br>
+                <div id='attributeDescription'></div>
+              </form>              
+          </div>
+      </div>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+
+  <!-- Load Leaflet from CDN -->
+  <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+   crossorigin=""></script>
+
+  <!-- Load Leaflet Locate from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+  <!-- Load Sidebar v2 -->
+  <?!= include('leaflet-sidebar-v2.js') ?>
+
+  <!-- Load Default Extent (home button) -->
+  <?!= include('default-extent.js') ?>
+
+  <!--Include custom JavaScript-->
+  <?!= include('JavaScript') ?>
+  </body>
+
+</html>

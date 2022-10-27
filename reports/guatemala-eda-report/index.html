@@ -1,0 +1,852 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='file://C://Users//Erik//AppData//Roaming//Typora/themes/vue/fonts.css' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; --title-bar-height:20px; }
+.mac-os-11 { --title-bar-height:28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-require-zoom-fix { height: auto; margin-top: 16px; margin-bottom: 16px; }
+.md-require-zoom-fix foreignobject { font-size: var(--mermaid-font-zoom); }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex:2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+
+
+@import '';
+
+:root {
+    --side-bar-bg-color: #fff;
+    --control-text-color: #777;
+    --font-sans-serif: 'Ubuntu', 'Source Sans Pro', sans-serif !important;
+    --font-monospace: 'Fira Code', 'Roboto Mono', monospace !important;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-sans-serif);
+    color: #34495e;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6rem;
+    letter-spacing: 0;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+#write {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 30px 100px;
+}
+
+#write p {
+    line-height: 1.6rem;
+    word-spacing: .05rem;
+}
+
+#write ol li {
+    padding-left: 0.5rem;
+}
+
+#write > ul:first-child,
+#write > ol:first-child {
+    margin-top: 30px;
+}
+
+body > *:first-child {
+    margin-top: 0 !important;
+}
+
+body > *:last-child {
+    margin-bottom: 0 !important;
+}
+
+a {
+    color: #42b983;
+    font-weight: 600;
+    padding: 0 2px;
+    text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+
+h1 tt,
+h1 code {
+    font-size: inherit !important;
+}
+
+h2 tt,
+h2 code {
+    font-size: inherit !important;
+}
+
+h3 tt,
+h3 code {
+    font-size: inherit !important;
+}
+
+h4 tt,
+h4 code {
+    font-size: inherit !important;
+}
+
+h5 tt,
+h5 code {
+    font-size: inherit !important;
+}
+
+h6 tt,
+h6 code {
+    font-size: inherit !important;
+}
+
+h2 a,
+h3 a {
+    color: #34495e;
+}
+
+h1 {
+    padding-bottom: .4rem;
+    font-size: 2.2rem;
+    line-height: 1.3;
+}
+
+h2 {
+    font-size: 1.75rem;
+    line-height: 1.225;
+    margin: 35px 0 15px;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #ddd;
+}
+
+h3 {
+    font-size: 1.4rem;
+    line-height: 1.43;
+    margin: 20px 0 7px;
+}
+
+h4 {
+    font-size: 1.2rem;
+}
+
+h5 {
+    font-size: 1rem;
+}
+
+h6 {
+    font-size: 1rem;
+    color: #777;
+}
+
+p,
+blockquote,
+ul,
+ol,
+dl,
+table {
+    margin: 0.8em 0;
+}
+
+li > ol,
+li > ul {
+    margin: 0 0;
+}
+
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+body > h2:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+body > h1:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+body > h3:first-child,
+body > h4:first-child,
+body > h5:first-child,
+body > h6:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+a:first-child h1,
+a:first-child h2,
+a:first-child h3,
+a:first-child h4,
+a:first-child h5,
+a:first-child h6 {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+h1 p,
+h2 p,
+h3 p,
+h4 p,
+h5 p,
+h6 p {
+    margin-top: 0;
+}
+
+li p.first {
+    display: inline-block;
+}
+
+ul,
+ol {
+    padding-left: 30px;
+}
+
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+
+blockquote {
+    border-left: 4px solid #42b983;
+    padding: 10px 15px;
+    color: #777;
+    background-color: rgba(66, 185, 131, .1);
+}
+
+table {
+    padding: 0;
+    word-break: initial;
+}
+
+table tr {
+    border-top: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+
+table tr:nth-child(2n),
+thead {
+    background-color: #fafafa;
+}
+
+table tr th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    text-align: left;
+    margin: 0;
+    padding: 6px 13px;
+}
+
+table tr td {
+    border: 1px solid #dfe2e5;
+    text-align: left;
+    margin: 0;
+    padding: 6px 13px;
+}
+
+table tr th:first-child,
+table tr td:first-child {
+    margin-top: 0;
+}
+
+table tr th:last-child,
+table tr td:last-child {
+    margin-bottom: 0;
+}
+
+#write strong {
+    padding: 0 1px;
+}
+
+#write em {
+    padding: 0 5px 0 2px;
+}
+
+#write table thead th {
+    background-color: #f2f2f2;
+}
+
+#write .CodeMirror-gutters {
+    border-right: none;
+}
+
+#write .md-fences {
+    border: 1px solid #F4F4F4;
+    -webkit-font-smoothing: initial;
+    margin: 0.8rem 0 !important;
+    padding: 0.3rem 0 !important;
+    line-height: 1.43rem;
+    background-color: #F8F8F8 !important;
+    border-radius: 2px;
+    font-family: var(--font-monospace);
+    font-size: 0.85rem;
+    word-wrap: normal;
+}
+
+#write .CodeMirror-wrap .CodeMirror-code pre {
+    padding-left: 12px;
+}
+
+#write code, tt {
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-family: var(--font-monospace);
+    font-size: 0.92rem;
+    color: #e96900;
+    background-color: #f8f8f8;
+}
+
+tt {
+    margin: 0 2px;
+}
+
+#write .md-footnote {
+    background-color: #f8f8f8;
+    color: #e96900;
+}
+
+/* heighlight. */
+#write mark {
+    background-color: #EBFFEB;
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin: 0 2px;
+    color: #222;
+    font-weight: 500;
+}
+
+#write del {
+    padding: 1px 2px;
+}
+
+.cm-s-inner .cm-link,
+.cm-s-inner.cm-link {
+    color: #22a2c9;
+}
+
+.cm-s-inner .cm-string {
+    color: #22a2c9;
+}
+
+.md-task-list-item > input {
+    margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+
+    table,
+    pre {
+        page-break-inside: avoid;
+    }
+
+    pre {
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+    background-color: #f8f8f8;
+}
+
+.md-diagram-panel {
+    position: static !important;
+}
+
+#write pre.md-meta-block {
+    padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block > .code-tooltip {
+    bottom: .375rem;
+}
+
+#write > h3.md-focus:before {
+    left: -1.5625rem;
+    top: .375rem;
+}
+
+#write > h4.md-focus:before {
+    left: -1.5625rem;
+    top: .285714286rem;
+}
+
+#write > h5.md-focus:before {
+    left: -1.5625rem;
+    top: .285714286rem;
+}
+
+#write > h6.md-focus:before {
+    left: -1.5625rem;
+    top: .285714286rem;
+}
+
+.md-image > .md-meta {
+    border-radius: 3px;
+    font-family: var(--font-monospace);
+    padding: 2px 0 0 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: inherit;
+}
+
+.md-toc {
+    margin-top: 20px;
+    padding-bottom: 20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+#md-notification:before {
+    top: 10px;
+}
+
+/** focus mode */
+
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header,
+.context-menu,
+.megamenu-content,
+footer {
+    font-family: var(--font-sans-serif);
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state {
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: var(--side-bar-bg-color);
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+.html-for-mac .context-menu {
+    --item-hover-bg-color: #E6F0FE;
+}
+
+tr:hover {
+    background-color: #abf0d1;
+  }
+
+
+
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+</style><title>interactive-report-no-code</title>
+</head>
+<body class='typora-export os-windows'><div class='typora-export-content'>
+<div id='write'  class=''><h1 id='preliminary-analysis-of-guatemala-spatial-data'><span>Preliminary Analysis of Guatemala Spatial Data</span></h1><details>
+    <summary><b>Learn more about how this report was generated</b></summary>
+This report was generated using a Jupyter Notebook, available as an ESRI application add-on with a Creator Account. A version of this notebook with the code used to generate it is available upon request.
+</details><p><span>This report details an initial analysis of currently available spatial data in Guatemala. The purpose of this analysis is to better understand the data available, limitations of the data, and the types of questions these data may help us answer for stakeholders. This report also models a repeatable, generalized process for data analysis.</span></p><p><span>The report begins with an initial exploration of the available data and the relationships between key metrics (&quot;metrics&quot; is used in this report to describe any measure of concern, such as population density or youth rate). </span></p><p><span>Next, we address the following key question for the USAID Guatemala mission as a whole and for each Technical Office and La Ruta collaborative:</span></p><p><strong><span>&quot;Are we conducting activities in municipalities that show high measures for the social, economic and environmental metrics we seek to influence?&quot;</span></strong></p><h2 id='exploratory-data-analyses'><span>Exploratory Data Analyses</span></h2><p><span>Exploratory data analyses are conducted to ensure data quality, understand key parameters of the data, and explore relationships between data. Here we describe the data included in this analysis, the process of preparing the data, the rationale for selection of primary metrics, and explore relationships between key metrics.</span></p><h3 id='available-data'><span>Available Data</span></h3><p><span>Data for this analysis can be accessed with an ESRI Viewer account on the </span><a href='https://usaidguatemala.maps.arcgis.com/home/index.html'><span>Guatemala Mission&#39;s ArcGIS Online site</span></a><span>. Data are accessible under Content &gt; My Organization. </span></p><p><span>From the available feature layers we have selected layers related to municipal politial boundaries, activities and their locations, demographics including population, youth rate, women rate, Maya rate, and the Migration Potential Index (MPI). We have not included any sensitive data including data on returnees, apprehensions, or homicides due to their sensitivity. However, these data may be included in future analyses as needed.</span></p><h3 id='data-preparation'><span>Data Preparation</span></h3><p><span>To simplify analysis, key metrics from each dataset with muncipality-level data were joined based on the muncipality ID field (</span><code>Codigo1</code><span>) to create a &quot;flat-file&quot; with all metrics indexed by muncipality. This format can be shared via any spreadsheet software to allow analysis by stakeholders without a GIS. </span></p><p><span>Next, a limited set of metrics were selected to simplify analysis. We have selected data from the year 2018 as this year provides the most comprehensive set of metrics for a single year and includes the most recent available census data. These data were then joined to a shapefile of municipality boundaries to allow for plotting with maps.</span></p><p><span>The High, Medium and Low MPI metric, which represent the proportion of households in a muncipality scoring high, medium or low on the MPI, will be highly correlated for each municipality. To focus the analysis, we will combine these three metrics by summing the High and Medium MPI measures to calculate an &#39;MPI Risk&#39; metric; we drop the &#39;Low MPI&#39; metric.</span></p><iframe height="350" width="100%" src="assets/muni-table.html"></iframe><p><span>A second dataset was created to capture the location of activities. In this dataset, each activity/municipality combination is a record. The Technical Office of the activity and whether the activity is a part of La Ruta collaborative is also included. </span></p><iframe height="350" width="100%" src="assets/activities-table.html"></iframe><p><span>Below, we use a pair plot to explore distributions of each metric and relationships between them. The diagonal shows the distribution of each metric, the lower left and upper right show relationships between pairs of metrics with regression plots and kernel density plots, respectively.</span></p><p><img src="assets/pair-grid.png" referrerpolicy="no-referrer" alt="pair-grid"></p><p><span>Here we can see that Women Rate and Youth Rate are both normally distributed across all municipalities. The Maya rate shows that many municipalities have a very low rate (near 0%), while some municipalities have high rates (near 100%). Very few municipalities have a rate in between, which suggests high stratification and racial isolation.</span></p><p><span>As we would expect based on our understanding of the drivers of migration, municipalities with higher women rates and Maya rates also have a higher migration potential. However, youth rate appears to be negatively correlated with migration potential, contrary to expectations.</span></p><h2 id='analysis'><span>Analysis</span></h2><p><span>Data analysis is an iterative process requiring collaboration between the analyst and the stakeholder, where the stakeholder represents the entity for which the analysis is conducted.</span></p><p><span>We recommend following a cycle of the following steps iteratively throughout the analysis:</span></p><ol start='' ><li><span>Pose a question</span></li><li><span>Co-develop an evaluation plan</span></li><li><span>State expectations</span></li><li><span>Evaluate</span></li><li><span>Communicate</span></li><li><span>Refine and repeat</span></li></ol><p><span>Steps 1-3 are best completed as a collaboration between the analyst and the stakeholder. The analyst can help the stakeholder refine their question to one that is answerable with available data and analysis techniques. Co-developing the evaluation plan helps avoid miscommunication. Stating expectations of the analysis before the analysis is conducted can serve as a type of hypothesis and also helps the analyst consider the best way to communicate analysis results.</span></p><p><span>The analyst will then complete the evaluation based on the evaluation plan and prepare to communicate insights developed from the analysis. Insights should be commuicated to relevant stakeholders. </span></p><p><span>Invariably, the analysis will lead to more questions or a need to refine the initial question. Repeat the process until a satisfactory answer is achieved or resources run out.</span></p><h3 id='motivating-question'><span>Motivating Question</span></h3><p><em><span>Analyses should begin from a question or hypothesis, rather than from the data. While understanding which data are available and the limitations of those data is important, the data available today should not be a deterent from asking the questions that need answers. Further, data is unlikely to provide insights by itself. It is the analyst&#39;s job to utilize the data to attempt to answer stakeholder questions while also counseling stakeholders on the limitations of the analysis.</span></em></p><p><span> The question motivating this analysis, repeated from the introduction, is as follows:</span></p><p><strong><span>&quot;Are we conducting activities in municipalities that show high measures for the social, economic and environmental metrics we seek to influence?&quot;</span></strong><span> </span></p><p><span>We will attempt to address this question overall, for each Technical Office, and for La Ruta collaborative.</span></p><h3 id='evaluation-plan'><span>Evaluation Plan</span></h3><p><em><span>The evaluation plan should state succinctly how the data will be manipulated and the plan for communicating insights through maps or data visualizations. Specifying the evaluation plan up front helps focus and direct the evaluation and can help identify when the data and analytical techniques available are not sufficient to answer the question posed. Refine the question if needed in this case.</span></em></p><p><span>For each analysis, we will create one map per metric showing a choropleth of the metric by municipality and a variable-sized marker indicating the number of activities located within the municipality. In addition, we will show a scatter plot relating the number of activities in a muncipality with each metric measure.</span></p><h3 id='expectation'><span>Expectation</span></h3><p><em><span>The expectation should describe what the stakeholder expects the data to show following the evaluation. Stating the expectation before the evaluation serves as a lightweight hypothesis and can stakeholders think through what a positive or negative result implies. This is also an opportunity to capture any limitations of the data or the analysis which might explain why the results of the analysis do not match the expectation.</span></em></p><p><span>We expect that the number of activities in any municipality is positively correlated with any metric for which the Technical Office is attempting to influence through its programming. For example, we expect that the count of all activities, regardless of Technical Office, increases as the MPI increases due to the focus on the Root Causes Strategy (RCS). This would corroborate the assertion that the Mission is geographically targetting resources strategically.</span></p><p><span>If this expectation does not hold, it may be for a number of reasons, including:</span></p><ul><li><span>data at the municipal level do not appropriately capture the targetting of activities; activities are targetted at communities, households or some other sub-municipal scale</span></li><li><span>2018 data do not reflect the state of the world in which activities were initially targetted</span></li><li><span>the activity data we have shows the coverage for the previous CDCS; targetting has changed </span></li><li><span>the number of activities in a municipality is a poor proxy for geographic targetting, better might be dollars invested and better still economic impact of dollars invested</span></li><li><span>activities are not targeted strategically</span></li></ul><h3 id='results'><span>Results</span></h3><p><em><span>Results communicates the findings of the analysis. In many cases, we recommend including a summary of results at the beginning of any report to allow decision makers to quickly digest the information. Additional detail can be provided after the summary of results for those who need to or prefer to know the details of the analysis.</span></em></p><p><span>Here we present the results of the analysis overall, for each Technical Office, and for La Ruta collaborative.</span></p><h4 id='overall'><span>Overall</span></h4><p><span>Here we present the results for all activities regardless of technical office. Due to the RCS, we focus on MPI Risk (the proportion of households with medium or high potential of migration) as the metric for which the Mission as a whole is interested in targetting.</span></p><p><span>From this map we can clearly see that USAID is targetting activities in higher numbers in the Western Highlands where MPI Risk is generally higher than other areas.</span></p><iframe height="350" width="100%" src="assets/overall-mpi-map.html"></iframe><hr /><p><span>However, as we can see from a scatterplot relating the MPI Risk and number of activities for each municipality, the relationship is not strong. MPI Risk only explains 8% of the variability in number of activities for each municipality (R-squared of the ordinary least squares regression equals 0.085).</span></p><iframe height="400" width="100%" src="assets/overall-mpi-chart.html"></iframe><hr /><p><span>Given the apparent disagreement between the map and scatterplot, we revise our motivating question to focus on departments instead of municipalities: </span></p><p><strong><span>&quot;Are we conducting activities in departments that show high measures for the social, economic and environmental metrics we seek to influence?&quot;</span></strong><span>. </span></p><p><span>Indeed, we do see a stronger relationship between the average MPI score within a department and the number of activities taking place within that department. We will use departments, rather than municipalities for our analysis by Technical Office.</span></p><iframe height="350" width="100%" src="assets/overall-mpi-dept-chart.html"></iframe><hr /><h4 id='democracy--governance-office'><span>Democracy &amp; Governance Office</span></h4><iframe height="350" width="100%" src="assets/DGO-map.html"></iframe><iframe height="350" width="100%" src="assets/DGO-chart.html"></iframe><hr /><h4 id='economic-growth-office'><span>Economic Growth Office</span></h4><iframe height="350" width="100%" src="assets/EGO-map.html"></iframe><iframe height="350" width="100%" src="assets/EGO-chart.html"></iframe><hr /><h4 id='health--education-office'><span>Health &amp; Education Office</span></h4><iframe height="350" width="100%" src="assets/HEO-map.html"></iframe><iframe height="350" width="100%" src="assets/HEO-chart.html"></iframe><hr /><h4 id='pepfar'><span>PEPFAR</span></h4><iframe height="350" width="100%" src="assets/PEPFAR-map.html"></iframe><iframe height="350" width="100%" src="assets/PEPFAR-chart.html"></iframe><hr /><h4 id='la-ruta'><span>La Ruta</span></h4><p><span>Here we filter activities that are included in La Ruta collaboration, which include &#39;Nexos Locales Project&#39;, &#39;Community Roots Project&#39;, &#39;Communities Leading Development&#39;, &#39;Peacebuilding Project&#39;, &#39;Feed the Future Guatemala Innovative Solutions for Agricultural Value Chains Project&#39;, and &#39;Puentes Project&#39;. </span></p><iframe height="350" width="100%" src="assets/La Ruta-map.html"></iframe><iframe height="350" width="100%" src="assets/La Ruta-chart.html"></iframe><hr /><h3 id='discussion'><span>Discussion</span></h3><p><em><span>In the discussion section we provide additional insights including counsel on any limitations of the analysis and its conclusions. This is a good opportunity to revisit the expectation stakeholders had of the analysis and discuss how the results differ, if they do, and why that might be.</span></em></p><p><span>As we can see from these scatter plots, each Technical Office and La Ruta collaborative is generally targeting the departments that show high measures for the metrics used in this analysis. This relationship holds less strongly at the municipal level.</span></p><p><span>The departments with the most activities are also those known to have the highest rates of returnees over the past few years. The table below shows the top 5 departments by total number of activities.</span></p><iframe width="100%" height="200" src="assets/top-departments-table.html"></iframe><p><span>If IPs typically work regionally within Guatemala, this suggests that IPs working in a region might be more effective by targeting in which municipalities they function. However, it may also be the case that IPs are targeting their level of effort at some sub-municipal level. Follow up conversations with IPs can help discern if there is truly an opportunity for more specific geographic targeting.</span></p><h4 id='future-directions'><span>Future Directions</span></h4><p><span>For further analysis, we recommend seeking a more direct measure of impact than the number of activities. Dollars invested might provide a more interesting comparison. However, actual return on dollars invested would be best, if it can be measured in a meaningful way.</span></p><p><span>Further, we recommend analyzing geographic targeting across multiple spatial scales, ideally including sub-municipal scales. We may work with IPs to get a better sense of where they are targeting their efforts at the community or household scales. </span></p><p><span>The MPI offers a field-based rapid survey for assessing the MPI Risk of a single household (</span><a href='https://ebrary.ifpri.org/digital/collection/p15738coll2/id/133849'><span>Appendix D</span></a><span>). This may be used by IPs for all or a sample of their beneficiaries. A systematic survey may also be conducted across high-priority departments or other geographic area of focus.</span></p><hr /><p>&nbsp;</p></div></div>
+</body>
+</html>
