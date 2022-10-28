@@ -1,0 +1,664 @@
+<script>
+
+    // https://009co.com/?p=613 how to color geoJson by data table
+    
+    var DDCOLS = ['Activity Name*', 'Exact Site Location Type*', 'Activity Location Data Type*', 'Intervention Type', 'Sector - Subsector', 'Beneficiary Type', 'Partner Organization']
+    
+    var HEADERS;
+    var DATA;
+    var FILTERDATA;
+    var HEXGEOJSON;
+    var HEXLAYER;
+    var HEXCOUNT;
+    var LEGENDBREAKS = [0, 1, 2, 4, 8, 16, 32, 64, 128, 1000];  // max 148 as of 9/28/2022 TODO: create logspace function
+    var MAXVALUE = 0;
+    
+    // set bounds for search
+    // var BLcorner = L.latLng( [14.535732627008766, -92.23571777343751] );
+    // var TRcorner = L.latLng( [17.816685878972844, -89.14306640625001] );
+    // var BOUNDS = L.latLngBounds(BLcorner, TRcorner)
+    
+    // create map
+    var map = L.map('map', {
+      center: [15.75, -91.5],
+      zoom: 8,
+      maxZoom: 20,
+      doubleClickZoom: false,
+    });
+    
+    // add map controls
+    var layerControl = L.control.layers({}, {}).addTo(map);
+    L.control.defaultExtent().addTo(map);
+    
+    // add legend
+    var legend = L.control({position: 'bottomright'});
+    
+    legend.onAdd = function (map) {
+    
+      var div = L.DomUtil.create('div', 'info legend'),
+        breaks = LEGENDBREAKS,
+        grades = breaks.slice(0, -1),
+        grades_pp = grades.map(value => value.toLocaleString(undefined, { maximumFractionDigits: 1}));
+    
+      var legendTitle = document.createElement('p');
+      legendTitle.innerText = '# of Implementation\nActivities';
+      div.appendChild(legendTitle);
+    
+      // loop through our density intervals and generate a label with a colored square for each interval
+      for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+            grades_pp[i] + (grades_pp[i + 1] ? ' &ndash; ' + grades_pp[i + 1] + '<br>' : '+');
+      }
+      return div;
+    }
+    
+    // create layer group to allow clearing the map
+    var layerGroup = L.layerGroup();
+    
+    // custom markers
+    const healthIcon = L.divIcon({
+      html: '<span class="material-icons md-24">local_hospital</span>',
+      iconSize: [24,24],
+      iconAnchor: [12,20],
+      popupAnchor: [0,-24],
+      className: 'healthIcon'  // avoid collision with MaterializeCSS
+    });
+    
+    const schoolIcon = L.divIcon({
+      html: '<span class="material-icons md-24">school</span>',
+      iconSize: [24,24],
+      iconAnchor: [12,20],
+      popupAnchor: [0,-24],
+      className: 'schoolIcon'  // avoid collision with MaterializeCSS
+    });
+    
+    // marker groups
+    var HEALTHSITES = L.markerClusterGroup( {
+      iconCreateFunction: function(cluster) {
+            return L.divIcon({ 
+          html: '<i style="transform: scale(1.4)" class="material-icons md-24">local_hospital</i><div style="text-align: center">' + cluster.getChildCount() +'</div>',
+          iconSize: [24,24],
+          iconAnchor: [12,20],
+          className: 'healthCluster'
+          });
+        },
+      polygonOptions: {
+        fillColor: '#BA0C2F',
+        color: '#BA0C2F',
+        weight: 0.5,
+        opacity: 1,
+        fillOpacity: 0.35
+        },
+      disableClusteringAtZoom: 13,
+      spiderfyOnMaxZoom: false,
+      maxClusterRadius: 50
+    });
+    
+    var SCHOOLS = L.markerClusterGroup( {
+      iconCreateFunction: function(cluster) {
+            return L.divIcon({ 
+          html: '<i style="transform: scale(1.4)" class="material-icons md-24">school</i><div style="text-align: center">' + cluster.getChildCount() +'</div>',
+          iconSize: [24,24],
+          iconAnchor: [12,20],
+          className: 'schoolCluster'
+          });
+        },
+      polygonOptions: {
+        fillColor: '#002F6C',
+        color: '#002F6C',
+        weight: 0.5,
+        opacity: 1,
+        fillOpacity: 0.35
+        },
+      disableClusteringAtZoom: 13,
+      spiderfyOnMaxZoom: false,
+      maxClusterRadius: 50
+    });
+    
+    
+    // CLASSES
+    class DDropDown{
+      // https://www.youtube.com/playlist?list=PLRmEk9smitaUDco5Y_bYClnFNCHx1jmWY
+      
+      constructor(data){
+        this.data = data;
+        this.targets=[];
+      }
+    
+      filterData(filtersAsArray){
+        // Use 'All' as option in filter to get All values
+        const filteredData = this.data.filter(r => {
+          return filtersAsArray.every((item, i) => {
+            return item === 'All' || item === '' ? true : r[i].includes(item)
+            })
+          });
+        return filteredData
+      }
+    
+      getUniqueValues(dataAsArray, index){
+        const uniqueOptions = new Set();
+        dataAsArray.forEach(r => {
+          return r[index].split(',').forEach(item => {
+            return item !== '' ? uniqueOptions.add(item.trim()) : {}
+            })
+          });
+        return [...uniqueOptions]
+      }
+    
+      populateDropDown(el, listAsArray){
+        const currentValue = el.value;
+        // clear options
+        el.innerHTML = "";
+        
+        // add All as option
+        const allOption = document.createElement('option');
+        allOption.textContent='All';
+        el.appendChild(allOption);
+        
+        // add dependent options
+        listAsArray.forEach(item => {
+          const option = document.createElement('option');
+          option.textContent = item;
+          el.appendChild(option);
+        });
+        
+        // set value
+        el.value = currentValue === '' ? 'All' : currentValue;
+      }
+    
+      createPopulateDropDownFunction(el, elsDependsOn, elIndex){
+        return () => {
+          var elsDependsOnValues = elsDependsOn.length === 0 ? null : elsDependsOn.map(depEl => depEl.value);
+          elsDependsOnValues.splice(elIndex, 0, '');
+          const dataToUse = elsDependsOn.length === 0 ? this.data : this.filterData(elsDependsOnValues);
+          const listToUse = this.getUniqueValues(dataToUse, elIndex);
+          this.populateDropDown(el, listToUse);
+        }
+      }
+    
+      applyFilters() {
+        return () => {
+          var filterEls = document.querySelectorAll(".form-select");
+          var filtersAsArray = [];
+          filterEls.forEach(el => filtersAsArray.push(el.value));
+          var filterIndices = DDCOLS.map(col => HEADERS.indexOf(col));
+          var filteredData = DATA.filter(row => {
+            return filtersAsArray.every((item, i) => {
+              return item === 'All' || item === '' ? true : row[filterIndices[i]].includes(item)
+            });
+          });
+          setFilterData(filteredData);
+          updateMap();  
+        }
+      }
+    
+      add(options){
+        /* options = {target: "level2", dependsOn: ["level1"], elIndex: 2, elProp: 'prop1'} */
+        const el = document.getElementById(options.target);
+        const elsDependsOn = options.dependsOn.length === 0 ? [] : options.dependsOn.map(id => {
+          return document.getElementById(id)
+        });
+        const elsAsArray = elsDependsOn.concat(el);
+        const initFunction = this.createPopulateDropDownFunction(el, elsDependsOn, options.elIndex);
+        const changeFunction = this.applyFilters();
+        const targetObject = { el: el, elsDependsOn: elsDependsOn, func: initFunction, elProp: options.elProp };
+        el.addEventListener('change', changeFunction);
+        targetObject.elsDependsOn.forEach(depEl => depEl.addEventListener('change', initFunction));
+        this.targets.push(targetObject);
+        return this;
+      }
+    
+      initialize(){
+        this.targets.forEach(t => t.func());
+        return this;
+      }
+    
+      eazyDropDown(arrayOfIds, arrayOfProps){  // TODO could be single dictionary as input {el: {target: elId, elProp: 'Name'}}
+        arrayOfIds.forEach((item, i) => {
+          const dependsOn = arrayOfIds.filter(val => val !== item);
+          const option = { target: item, dependsOn: dependsOn,  elIndex: i, elProp: arrayOfProps[i]};  
+          this.add(option);
+        });
+        this.initialize();
+      }
+    } // END DDropDown CLASS
+    
+    
+    function createDropDowns(){
+      var ddColIdxs = DDCOLS.map(col => HEADERS.indexOf(col));
+      var ddData = DATA.map(row => {
+        return row.filter((_, idx) => ddColIdxs.includes(idx))
+      });
+      var elIds = ['activityName', 'siteLocation', 'activityType'];
+      var dd = new DDropDown(ddData);
+      dd.eazyDropDown(
+        elIds, 
+        DDCOLS.slice(0, 3)
+      )
+    }
+    // function createGeoJson(data){
+    //   headers = data.shift();
+    //   myGeoJSON = {};
+    //   myGeoJSON.type = "FeatureCollection";
+    //   var features = []
+    //   data.forEach(function(row, i) {
+    //     featureJSON = {};
+    //     featureJSON.type = "Feature";
+    //     featureJSON.geometry = {"type": "Point", "coordinates": [row[LONCOL], row[LATCOL]]};
+    //     var props = {};
+    //     headers.forEach(function(header, j){
+    //       props[header] = row[j]
+    //     });
+    //     featureJSON.properties = props;
+    //     features.push(featureJSON)
+    //   });
+    //   myGeoJSON.features = features;
+      
+    //   return myGeoJSON
+    // }
+    
+    
+    // add sidebar
+    var sidebar = L.control.sidebar({
+      autopan: false,       // whether to maintain the centered map point when opening the sidebar
+      closeButton: false,    // whether t add a close button to the panes
+      container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
+      position: 'left',     // left or right
+    }).addTo(map);
+    
+    
+    // store Esri searchbar results
+    var RESULTS = L.layerGroup().addTo(map);
+    
+    // add Esri features that require API key
+    function applyEsriFeatures(apiKey) {
+      // add basemap options
+      var Esri_WorldGrayCanvas = L.esri.Vector.vectorBasemapLayer("ArcGIS:LightGray", { apiKey: apiKey }).addTo(map);
+      var Esri_WorldImagery = L.esri.Vector.vectorBasemapLayer("ArcGIS:Imagery", { apiKey: apiKey });
+      layerControl.addBaseLayer(Esri_WorldGrayCanvas, "Greyscale");
+      layerControl.addBaseLayer(Esri_WorldImagery, "Imagery");
+    
+      const searchControl = L.esri.Geocoding.geosearch({
+        position: "topright",
+        placeholder: "",
+        useMapBounds: 12,
+        providers: [
+          L.esri.Geocoding.arcgisOnlineProvider({
+            apikey: apiKey,
+            countries: 'GTM',
+            nearby: {
+              lat: 14.683945,
+              lng: -90.542282
+            }
+          })
+        ]
+      }).addTo(map);
+    
+      searchControl.on("results", (data) => {
+        RESULTS.clearLayers();
+        if (data.results.length > 0) {
+          for (let i = data.results.length - 1; i >= 0; i--) {
+            const lngLatString = `${Math.round(data.results[i].latlng.lng * 100000) / 100000}, ${
+              Math.round(data.results[i].latlng.lat * 100000) / 100000
+            }`;
+            const marker = L.marker(data.results[i].latlng);
+            marker.bindPopup(`${lngLatString}<b><p>${data.results[i].properties.LongLabel}</p></b>`);
+            RESULTS.addLayer(marker);
+            marker.openPopup();
+          }      
+        } else {
+          // Create toast instance
+          var element = document.getElementById("myToast");
+          var myToast = new bootstrap.Toast(element);
+          myToast.show();
+        }
+      });
+    }
+    
+    
+    function addEsriFeatures(){
+      google.script.run.withSuccessHandler(applyEsriFeatures).getAPIKey();
+    }
+    
+    
+    // setGeoJSON
+    function setGeoJson(geoJson){
+      HEXGEOJSON = geoJson;
+    }
+    
+    
+    function setFilterData(filteredData){
+      FILTERDATA = filteredData;
+      hex_array = FILTERDATA.map(row => row[0]);
+      HEXCOUNT = getHexCountDict(hex_array);
+      MAXVALUE = getMax(HEXCOUNT);
+      // LEGENDBREAKS = getBreaks(MAXVALUE);
+    }
+    
+    
+    function setData(data){
+      HEADERS = data.shift();
+      data = data.map(row=> {
+        return row.slice(0,3).concat(
+          [
+            row[3] ? row[3].split(",")[0] : '',
+            row[4] ? row[4].split(",")[0] : '',
+          ]).concat(row.slice(5, row.length + 1))
+      })
+      DATA = data;
+      setFilterData(DATA);  
+    }
+    
+    
+    function mapSchools(json) {
+      schoolGeoJson = L.geoJSON(json, {
+    
+        pointToLayer: function(geoJsonPoint, latlng) {
+          return L.marker(latlng, {icon: schoolIcon})
+        },  // END POINT TO LAYER
+    
+        onEachFeature: function(feature, layer) {
+          // add marker to marker cluster group
+          SCHOOLS.addLayer(layer);
+        }  // END ON EACH FEATURE
+    
+      });  // END geoJSON
+    
+      schoolGeoJson.eachLayer(function(layer) {
+        // create popup html
+        var schoolID = layer.feature.properties['establecim'];
+        var schoolName = layer.feature.properties['nombre'];
+        var schoolAddress = layer.feature.properties['direccion'];
+        const popupContent = `
+          <div id="popupContentSelect">
+            <div  class="row">
+              <div class="col s12 center-align">${schoolName}</div>  
+            </div>
+            <div  class="row">
+              <div class="col s12 center-align">${schoolAddress}</div>  
+            </div>
+            <div  class="row">
+              <div class="col s12 center-align" style="font-weight: bold">ID: ${schoolID}</div>  
+            </div>
+          </div>
+          `;
+        var popup = L.popup().setContent(popupContent);
+        layer.bindPopup(popup);
+        }); // END EACH LAYER
+    
+        layerControl.addOverlay(SCHOOLS, "Schools");
+    }
+    
+    
+    function mapHealthSites(json) {
+      healthGeoJson = L.geoJSON(json, {
+    
+        pointToLayer: function(geoJsonPoint, latlng) {
+          return L.marker(latlng, {icon: healthIcon})
+        },  // END POINT TO LAYER
+    
+        onEachFeature: function(feature, layer) {
+          // add marker to marker cluster group
+          HEALTHSITES.addLayer(layer);
+        }  // END ON EACH FEATURE
+    
+      });  // END geoJSON
+    
+      healthGeoJson.eachLayer(function(layer) {
+        // create popup html
+        var prop_html = layer.feature.properties['gid'];
+        const popupContent = `
+          <div id="popupContentSelect">
+            <div  class="row">
+              <div class="col s12 center-align" style="font-weight: bold">ID: ${prop_html}</div>  
+            </div>
+          </div>
+          `;
+        var popup = L.popup().setContent(popupContent);
+        layer.bindPopup(popup);
+        }); // END EACH LAYER
+    
+        layerControl.addOverlay(HEALTHSITES, "Healthsites");
+    }
+    
+    
+    // function getHexCount(hexCode){
+    //   // var hexCountDict = DATA.reduce((a, c) => (a[c] = (a[c] || 0) + 1, a), Object.create(null));
+    //   return DATA[0].filter(val => val === hexCode).length
+    //   // console.log(hexCountDict)
+    //   // return hexCountDict
+    // }
+    
+    
+    function getHexCountDict(hex_array){
+      var hexCountDict = hex_array.reduce((a, c) => (a[c] = (a[c] || 0) + 1, a), Object.create(null));
+      return hexCountDict;
+    }
+    
+    
+    // make linspace array
+    function linspace(start, stop, steps){
+      var arr = [];
+      var step = (stop - start) / (steps - 1)
+      for (var i = 0; i < steps; i++){
+        arr.push(start + (step * i));
+      };
+      return arr;
+    }
+    
+    
+    // get max value
+    function getMax(hexDict){
+      var maxValue = 0;
+      Object.values(hexDict).forEach(value => {
+        if(value > maxValue){
+          maxValue = value;
+        };
+      });
+      return maxValue;
+    }
+    
+    
+    // get breaks
+    function getBreaks(maxValue){
+      var steps = 9;
+      var breaks = linspace(0, maxValue, steps);
+      return breaks;
+    }
+    
+    
+    // get color from hexCount
+    function getColorFromHexCount(hexCode){
+      var count = HEXCOUNT[hexCode] ? HEXCOUNT[hexCode] : 0;
+      return getColor(count);
+    }
+    
+    
+    // get color
+    function getColor(count){
+      var colors = ["#002f6c", "#20497f", "#406391", "#8097b6", "#c0cbdb", "#e0e5ed", "#F0F2F6", "#ffffff"];  // dark to light
+      var filteredBreaks = LEGENDBREAKS.filter(value => value > count);
+      var color = filteredBreaks.length === 0 ? colors[0] : colors[filteredBreaks.length - 1];
+      return color;
+    }
+    
+    
+    function getOpacity(hexCode){
+      var count = HEXCOUNT[hexCode] ? HEXCOUNT[hexCode] : 0;
+      return count > 0 ? 0.7 : 0
+    }
+    
+    function getWeight(hexCode){
+      var count = HEXCOUNT[hexCode] ? HEXCOUNT[hexCode] : 0;
+      return count > 0 ? 1 : 0
+    }
+    
+    
+    // style function
+    function style(feature) {
+      return {
+        fillColor: getColorFromHexCount(feature.properties.h3_polyfill),
+        weight: getWeight(feature.properties.h3_polyfill),
+        opacity: 1,
+        color: 'grey',
+        fillOpacity: getOpacity(feature.properties.h3_polyfill)
+      };
+    }
+    
+    
+    // mouse over function
+    function highlightFeature(e) {
+      var layer = e.target;
+    
+      layer.setStyle({
+          weight: 5
+      });
+    
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
+      }
+    }
+    
+    
+    // mouse out function
+    function resetHighlight(e) {
+      HEXLAYER.resetStyle(e.target);
+    }
+    
+    
+    // click function
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+      hex_code = e.target.feature.properties.h3_polyfill;
+      FILTERDATA = filterData(DATA, 0, hex_code);  // TODO integrate with filters
+      updateTable();
+    }
+    
+    
+    // register event functions
+    function onEachFeature(feature, layer) {
+      layer.on({
+          mouseover: highlightFeature,
+          mouseout: resetHighlight,
+          click: zoomToFeature
+      });
+    }
+    
+    
+    function showMap(){
+      HEXLAYER = L.geoJSON(HEXGEOJSON, {
+        style: style,
+        onEachFeature: onEachFeature,
+      }).addTo(layerGroup);
+      layerGroup.addTo(map);
+      legend.addTo(map);
+    }
+    
+    
+    function filterData(data, filterCol, filterVal){
+      filteredData = data.filter(row => {
+        return row[filterCol] === filterVal
+      });
+      return filteredData;
+    }
+    
+    
+    function updateMap(){
+      // clear map
+      layerGroup.clearLayers();
+    
+      // // filter data
+      // if(e.target.value === 'Select an Activity'){
+      //   FILTERDATA = DATA;
+      // } else {
+      //   FILTERDATA = filterData(DATA, 1, e.target.value)
+      // }
+    
+      // // update hex count
+      // hex_array = FILTERDATA.map(row => row[0]);
+      // HEXCOUNT = getHexCountDict(hex_array);
+    
+      showMap();
+      updateTable();
+    
+    }
+    
+    
+    function populateTableContent(tbl){
+      var tbody = tbl.createTBody();
+      for (var i = 0; i < FILTERDATA.length; i++){
+        var tr = tbody.insertRow();
+        for (var j = 1; j < FILTERDATA[0].length; j++){
+          var td = tr.insertCell();
+          td.textContent = FILTERDATA[i][j];
+        };
+      };
+    }
+    
+    
+    function populateTableHeaders(tbl){
+      var header = tbl.createTHead();
+      var headerRow = header.insertRow(0);
+      for(var i = 1; i < HEADERS.length; i++){
+        headerRow.insertCell().textContent = HEADERS[i];
+      }
+    }
+    
+    
+    function createTable(){ 
+      var tbl =  document.getElementById('table');
+      populateTableContent(tbl);
+      populateTableHeaders(tbl);
+    }
+    
+    
+    function updateTable(){
+      var tbl = document.getElementById('table');
+      tbl.getElementsByTagName('tbody')[0].remove();
+      populateTableContent(tbl); 
+    }
+    
+    
+    function initializeApp(returnObject){
+      var geoJson = JSON.parse(returnObject['geoJson']);
+      var data = returnObject['data'];
+      setGeoJson(geoJson);
+      setData(data);
+      createDropDowns();
+      showMap();
+      addEsriFeatures();
+      createTable();
+    }
+    
+    
+    function fetchGeoJson(src, func){
+      fetch(src, {
+        method: 'GET'
+      })
+      .then(response => response.json())
+      .then(json => {
+        func(json);
+      })
+      .catch(error => console.log(error.message));  // END FETCH
+    };
+    
+    
+    document.addEventListener('DOMContentLoaded', function(){
+      // get data
+      google.script.run.withSuccessHandler(initializeApp).initializeApp();
+    
+      // open sidebar
+      sidebar.open('home');
+    
+      // add schools and healthsites
+      fetchGeoJson('https://raw.githubusercontent.com/eanderson-ei/gtm-apps/main/data/spatial/schools.json',mapSchools);
+      fetchGeoJson('https://raw.githubusercontent.com/eanderson-ei/gtm-apps/main/data/spatial/healthsites.json', mapHealthSites);
+      
+    });
+    
+    // // filter by Activity Name
+    // document.getElementById("attr1").addEventListener('input', updateMap);
+    
+    
+    </script>
