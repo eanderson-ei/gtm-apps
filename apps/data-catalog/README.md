@@ -21,6 +21,7 @@ To replicate this project:
    * The **providers** sheet (optional) lists all data sources
    * The **directory** sheet lists all data assets
 3. Create a new Google Apps Script project and copy the Apps Script code found in the `scripts/standalone` directory. We recommend using `clasp`, see guidance below.
+4. Update the variable `SSID` in `Code.gs` with the ID of your copy of the Data Inventory template.
 
 *The Data Inventory template includes a containerized version of this script that adds a **Search** menu and *Search Datasets* menu item to launch the search bar as a modal dialog. A copy of this code can be found in the `scripts/containerized` directory.
 

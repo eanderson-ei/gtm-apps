@@ -105,7 +105,7 @@ A filter will allow us to filter data by an attribute of our choice.
 
 * Click the New Dashboard tab at the bottom of the window to create a new dashboard
 * Drag the Activity_Map sheet onto the canvas. The map should display and the filters should be attached to the map area. Ideally, the filters would be added within a Vertical tiled container. If not, you may need to drag a new Vertical object next to the map and redistribute the filter elements.
-* The Item hierarchy (click the Layout tab of the left sidebar) should look like this (excluding the Show/Hide element for now). This will become important when creating the Collapsible Filter Bar.
+* The Item hierarchy (click the Layout tab of the left sidebar) should look like this (excluding the Show/Hide element for now). This will become important when creating the Collapsible Filter Bar. The Activity_Map and Vertical Container storing all filters must be in the same Horizontal (not Tiled) container for the map to auto-expand when the Filter Bar is collapsed.
 
 ![tile-layout-show-hide](https://storage.googleapis.com/ei-dev-assets/assets/tile-layout-show-hide.png)
 
@@ -140,14 +140,14 @@ Next we'll add a table showing all activities that will filter based on filters 
 
 * Add alternating row shading by clicking 'Format' in the top menu and selecting 'Shading'. Select the Rows tab from the newly appeared left sidebar. Select the color for alternating rows from "Pane". Ensure band size is set to 1. Level should be 0.
 * Increase padding between rows under Format > Cell Size > Taller.
-* Set the Table to 'Fit Width' so that it will expand with the viewport.
+* Set the Table to 'Fit Width' so that it will expand with the viewport (top menu bar where it says 'Standard').
 
 ### 5.3 Add a Tooltip 
 
 Tables are set up so that hovering will expand the content of a cell, which is helpful when the text exceeds the column width. However, it means that a tooltip cannot easily be added to a table to show additional information on hover (although it is possible with some trouble). Instead, we'll create a dedicated column for the tooltip called 'More info'. This approach has the added benefit of solving for the 'Abc' placeholder column at the same time
 
 * Under Analysis, select Create Calculated Field. Set the Calculated field to be the string "More info".
-* Drag the calculated field over the placeholder column that currently shows 'Abc'.
+* Drag the calculated field into the "Text" Mark.
 * Drag the fields that you would like to show in the tooltip into the Tooltip card.
 * Double click the Tooltip card and customize the tooltip. Use the 'Insert' to add references to the attributes you want in the tooltip (you cannot just type open and close brackets).
 * You can change the font for this field by selecting Format > Font, select the 'More info' field from the dropdown menu for Fields, and under 'Pane' set the font to italics or however you would like to set it apart.
@@ -171,6 +171,7 @@ This step can be duplicated for any number of informational icons that have tool
 * Create a new worksheet and name it 'Search_Info'
 * Drag any attribute to the canvas. I created a new calculated field called 'Blank', but it really can be anything.
 * In the Marks card, change the mark to a Shape. Select 'Shape' and navigate to the shape you would like to use. If you want to add your own shape (I used a search glass icon), download a free icon image from the web and save it in the folder 'My Tableau Repository' in your 'My Documents' folder under 'shapes/'. Then open the Shape dialog box again, select 'More Shapes', and hit 'Reload Images'. You should see the image in the Custom Palette.
+* Remove the column header (click the dropdown in the Rows button and uncheck Show Header)
 * Remove the borders from the top and bottom of the element under Format > Borders > Row Divider > Pane = None.
 * Double click the Tooltip icon in the Marks card and update the text with the info you want to include. Uncheck 'Include command buttons' and 'Allow selection by category'.
 * Return to the Dashboard worksheet. Drag the Search_Info worksheet to where you would like it on the Dashboard. Under the container elements, adjust the icon to fit Entire View.
@@ -180,7 +181,6 @@ This step can be duplicated for any number of informational icons that have tool
 ## 6. Set up Cross-filtering
 
 * Under Dashboard menu, select Actions. Add Action (select Filter) and set 'Run action on' to "Select"and then below it under 'Clearing the selection will' select "Show All Values". Click OK. The source and target should both be Activity_Map and Activity_Table, which will allow you to use either the map or the table to filter records.
-* For each filter, right click and select 'All using Related Data Sources' (or if that option is not available, 'All using this data source').
 
 >  In Dashboard mode, you can connect filters across sheets by selecting (in the filter card) Apply to Worksheets and selecting an option within the dropdown menu. 
 

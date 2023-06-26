@@ -1,482 +1,444 @@
 <script>
 
-    // store geoJson and data
-    var MUNIGEOJSON;
-    var DATA;
-    var HEADERS;
-    var SHEETNAME;
-    var COLNAME;
-    var COLINDEX;
-    var MUNILAYER;
-    var ARRAYMINMAX = {'min': 0, 'max': 0}
-    var DIRECTORY = {};
-    var DEFINITIONSDICT;
-    var LONGNAME;
-    var UNITS;
-    
-    
-    // create map
-    var map = L.map('map', {
-      center: [16, -90.8],
-      zoom: 7,
-      maxZoom: 20,
-      zoomControl: true,
-    });
-    
-    // remove ukraine flag
-    map.attributionControl.setPrefix('Leaflet')
-    
-    // create layer group
-    var layerGroup = L.layerGroup().addTo(map);
-    
-    
-    // specify Tile Layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-    
-    
-    // add map controls
-    L.control.defaultExtent().addTo(map);
-    
-    
-    // add sidebar
-    var sidebar = L.control.sidebar({
-      autopan: false,       // whether to maintain the centered map point when opening the sidebar
-      closeButton: false,    // whether t add a close button to the panes
-      container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
-      position: 'left',     // left or right
-    }).addTo(map);
-    
-    
-    // add info box
-    var info = L.control();
-    
-    info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-        this.update();
-        return this._div;
+  // store geoJson and data
+  var MUNIGEOJSON;
+  var DATA;
+  var HEADERS;
+  var SHEETNAME;
+  var COLNAME;
+  var COLINDEX;
+  var MUNILAYER;
+  var ARRAYMINMAX = {'min': 0, 'max': 0}
+  var DIRECTORY = {};
+  var DEFINITIONSDICT;
+  var LONGNAME;
+  var UNITS;
+  var SHOWLEGEND;
+  
+  
+  // create map
+  var map = L.map('map', {
+    center: [15.8, -91.2],
+    zoom: 7.5,
+    zoomSnap: 0.25,
+    zoomDelta: 0.25,
+    maxZoom: 20,
+    zoomControl: true,
+  });
+  
+  // remove ukraine flag
+  map.attributionControl.setPrefix('Leaflet');
+  
+  // create layer group
+  var layerGroup = L.layerGroup().addTo(map);
+  
+  
+  // specify Tile Layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+  
+  
+  // add map controls
+  L.control.defaultExtent().addTo(map);
+  
+  
+  // add sidebar
+  var sidebar = L.control.sidebar({
+    autopan: false,       // whether to maintain the centered map point when opening the sidebar
+    closeButton: false,    // whether t add a close button to the panes
+    container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
+    position: 'left',     // left or right
+  }).addTo(map);
+  
+  
+  // add info box
+  var info = L.control();
+  
+  info.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+      this.update();
+      return this._div;
+  }
+  
+  // method that we will use to update the control based on feature properties passed
+  info.update = function (props) {
+    var headerText = LONGNAME;
+    var unitsText = UNITS;
+    this._div.innerHTML = '<h4>' + headerText + '</h4>' +  (props ?
+        '<b>' + props.Municipali + '</b>, ' + props.Department + '<br />' + props.value.toLocaleString(undefined, { minimumFractionDigits: 0 }) + ' ' +  unitsText
+        : 'Hover over a municipality');
+  }
+  
+  
+  // add legend
+  var legend = L.control({position: 'bottomright'});
+  
+  legend.onAdd = function (map) {
+  
+    var div = L.DomUtil.create('div', 'info legend'),
+      breaks = getBreaks(ARRAYMINMAX),
+      grades = breaks.slice(0, -1),
+      grades_pp = grades.map(value => value.toLocaleString(undefined, { maximumFractionDigits: 1}));
+  
+    var legendTitle = document.createElement('p');
+    legendTitle.innerText = UNITS;
+    div.appendChild(legendTitle);
+  
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+      div.innerHTML +=
+          '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+          grades_pp[i] + (grades_pp[i + 1] ? ' &ndash; ' + grades_pp[i + 1] + '<br>' : '+');
     }
-    
-    // method that we will use to update the control based on feature properties passed
-    info.update = function (props) {
-      var headerText = LONGNAME;
-      var unitsText = UNITS;
-      this._div.innerHTML = '<h4>' + headerText + '</h4>' +  (props ?
-          '<b>' + props.Municipali + '</b>, ' + props.Department + '<br />' + props.value.toLocaleString(undefined, { minimumFractionDigits: 0 }) + ' ' +  unitsText
-          : 'Hover over a municipality');
-    }
-    
-    
-    // add legend
-    var legend = L.control({position: 'bottomright'});
-    
-    legend.onAdd = function (map) {
-    
-      console.log(ARRAYMINMAX);
-    
-      var div = L.DomUtil.create('div', 'info legend'),
-        breaks = getBreaks(ARRAYMINMAX),
-        grades = breaks.slice(0, -1),
-        grades_pp = grades.map(value => value.toLocaleString(undefined, { maximumFractionDigits: 1}));
-      
-      console.log(breaks);
-    
-      var legendTitle = document.createElement('p');
-      legendTitle.innerText = UNITS;
-      div.appendChild(legendTitle);
-    
-      // loop through our density intervals and generate a label with a colored square for each interval
-      for (var i = 0; i < grades.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + getColor(grades[i]) + '"></i> ' +
-            grades_pp[i] + (grades_pp[i + 1] ? ' &ndash; ' + grades_pp[i + 1] + '<br>' : '+');
-      }
-      return div;
-    }
-    
-    
-    // fetch GeoJson
-    function fetchGeoJson(src, func){
-      fetch(src, {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(json => {
-        func(json);
-      })
-      .catch(error => console.log(error.message));  // END FETCH
-    }
-    
-    
-    // setGeoJSON
-    function setGeoJson(geoJson){
-      MUNIGEOJSON = JSON.parse(JSON.stringify(geoJson));  // deep copy geojson
-    }
-    
-    
-    // set array min and max
-    function getArrayMinMax(array){
+    return div;
+  }
+  
+  
+  // fetch GeoJson
+  function fetchGeoJson(src, func){
+    fetch(src, {
+      method: 'GET'
+    })
+    .then(response => response.json())
+    .then(json => {
+      func(json);
+    })
+    .catch(error => console.log(error.message));  // END FETCH
+  }
+  
+  
+  // setGeoJSON
+  function setGeoJson(geoJson){
+    MUNIGEOJSON = JSON.parse(JSON.stringify(geoJson));  // deep copy geojson
+  }
+  
+  
+  // set array min and max
+  function getArrayMinMax(array){
+    // for numeric values
+    let arrayMin, arrayMax;
+    if(array.every(ele => typeof ele === 'number')){
       arrayMin = Math.min.apply(null, array.filter(function(n) { return !isNaN(n); }));
       arrayMax = Math.max.apply(null, array.filter(function(n) { return !isNaN(n); }));
-      return {'min': arrayMin, 'max': arrayMax};
-    }
-    
-    // // normalize array
-    // function normalizeValue(value, arrayMinMax){
-    //   arrayMin = arrayMinMax['min'];
-    //   arrayMax = arrayMinMax['max'];
-    //   return (value - arrayMin) / (arrayMax - arrayMin)
-    // }
-    
-    
-    // // reverse normalization
-    // function reverseNormalization(value) {
-    //   arrayMin = ARRAYMINMAX['min'];
-    //   arrayMax = ARRAYMINMAX['max'];
-    //   return value * (arrayMax - arrayMin) + arrayMin
-    // }
-    
-    
-    // make linspace array
-    function linspace(start, stop, steps){
-      var arr = [];
-      var step = (stop - start) / (steps - 1)
-      for (var i = 0; i < steps; i++){
-        arr.push(start + (step * i));
-      };
-      return arr;
-    }
-    
-    
-    // get breaks
-    function getBreaks(arrayMinMax){
-      var start = arrayMinMax['min'];
-      var stop = arrayMinMax['max'];
-      var steps = 9;
-      var breaks = linspace(start, stop, steps);
-      return breaks;
-    }
-    
-    
-    // color helper
-    function getColor(d) {
-      var colors = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C',  '#FED976',  '#FFEDA0'];
-      var colorBreaks = getBreaks(ARRAYMINMAX).slice(1);
-      var filteredBreaks = colorBreaks.filter(value => value > d);
-      var color = filteredBreaks.length === 0 ? colors[0] : colors[filteredBreaks.length - 1];
-      return color;
-    }
-    
-    
-    // mouse over function
-    function highlightFeature(e) {
-        var layer = e.target;
-    
-        layer.setStyle({
-            weight: 5,
-            color: '#002F6C',
-            dashArray: '',
-            fillOpacity: 0.7
-        });
-    
-        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-            layer.bringToFront();
-        }
-    
-        info.update(layer.feature.properties);
-    }
-    
-    
-    // mouse out function
-    function resetHighlight(e) {
-        MUNILAYER.resetStyle(e.target);
-        info.update();
-    }
-    
-    
-    // click function
-    function zoomToFeature(e) {
-        map.fitBounds(e.target.getBounds());
-    }
-    
-    
-    // register event functions
-    function onEachFeature(feature, layer) {
-      layer.on({
-          mouseover: highlightFeature,
-          mouseout: resetHighlight,
-          click: zoomToFeature
+    } else {
+      arrayMin = 0;
+      arrayMax = DEFINITIONSDICT[COLNAME]['cat_order'].split(',').length - 1;
+    };
+    // console.log({'min': arrayMin, 'max': arrayMax});
+    return {'min': arrayMin, 'max': arrayMax};
+  }
+  
+  // // normalize array
+  // function normalizeValue(value, arrayMinMax){
+  //   arrayMin = arrayMinMax['min'];
+  //   arrayMax = arrayMinMax['max'];
+  //   return (value - arrayMin) / (arrayMax - arrayMin)
+  // }
+  
+  
+  // // reverse normalization
+  // function reverseNormalization(value) {
+  //   arrayMin = ARRAYMINMAX['min'];
+  //   arrayMax = ARRAYMINMAX['max'];
+  //   return value * (arrayMax - arrayMin) + arrayMin
+  // }
+  
+  
+  // make linspace array
+  function linspace(start, stop, steps){
+    var arr = [];
+    var step = (stop - start) / (steps - 1)
+    for (var i = 0; i < steps; i++){
+      arr.push(start + (step * i));
+    };
+    return arr;
+  }
+  
+  
+  // get breaks
+  function getBreaks(arrayMinMax){
+    var start = arrayMinMax['min'];
+    var stop = arrayMinMax['max'];
+    var steps = 9  // stop > 9 ? 9 : stop;
+    var breaks = linspace(start, stop, steps);
+    return breaks;
+  }
+  
+  
+  // color helper
+  function getColor(d) {
+    if(typeof d === 'string'){
+      categories = DEFINITIONSDICT[COLNAME]['cat_order'].split(',').map(ele=> ele.trim());
+      d = categories.indexOf(d);
+      SHOWLEGEND = false;
+    }  else {
+      SHOWLEGEND = true;
+    };
+    var colors = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C',  '#FED976',  '#FFEDA0'];
+    var colorBreaks = getBreaks(ARRAYMINMAX).slice(1);
+    var filteredBreaks = colorBreaks.filter(value => value > d);
+    var color = filteredBreaks.length === 0 ? colors[0] : colors[filteredBreaks.length - 1];
+    return color;
+  }
+  
+  
+  // mouse over function
+  function highlightFeature(e) {
+      var layer = e.target;
+  
+      layer.setStyle({
+          weight: 5,
+          color: '#002F6C',
+          dashArray: '',
+          fillOpacity: 0.7
       });
-    }
-    
-    
-    // style function
-    function style(feature) {
-      return {
-        fillColor: getColor(feature.properties.value),
-        weight: 1,
-        opacity: 1,
-        color: 'white',
-        fillOpacity: 0.7
-      };
-    }
-    
-    
-    // map municipalities with values
-    function mapMunisByValues(){
-      clearMap();
-      MUNILAYER = L.geoJSON(MUNIGEOJSON, {
-        style: style,
-        onEachFeature: onEachFeature,
-      }).addTo(layerGroup);
-    }
-    
-    
-    // convert selected column to a dictionary
-    function convertArrayToDict(){
-      // Codigo1 expected in 3rd column of dataset
-      var valueDict = {};
-      DATA.forEach(row => {
-        valueDict[row[2]] = row[COLINDEX];
-      });
-      return valueDict
-    }
-    
-    
-    // join selected data to municipality geoJSON
-    function joinDataToMunis(){
-      // get data array
-      if(DATA){
-        valueDict = convertArrayToDict();
-      } else {
-        console.log("Data are not yet loaded!")
-      };
-    
-      // update the value property in the json
-      MUNIGEOJSON.features.forEach(obj => {
-        obj.properties.value = valueDict[obj.properties['Codigo1']];
-        });
-    }
-    
-    
-    // store directory data
-    function loadDatasetOptions(data){
-      DIRECTORY = data;
-      var selectDataset = document.getElementById("selectDataset");
-      Object.keys(DIRECTORY).forEach(key => {
-        var option = document.createElement('option');
-        option.textContent = key;
-        selectDataset.appendChild(option);
-      }); 
-    }
-    
-    
-    // show map
-    function showMap(){
-      joinDataToMunis();
-      mapMunisByValues();
-      legend.addTo(map);
-      info.addTo(map);
-    }
-    
-    
-    // get spreadsheet data and populate globals
-    function setData(data){
-      HEADERS = data.shift();
-      DATA = data.slice();
-    }
-    
-    
-    function populateDropdowns(el, options, labels) {
-      if(labels === undefined) {
-        labels = options;
+  
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
       }
-      for(let i = 0; i < options.length; i++) {
-        var optionEl = document.createElement('option');
-        optionEl.setAttribute('value', options[i]);
-        optionEl.textContent = labels[i];
-        el.appendChild(optionEl);
-      }
-    }
-    
-    
-    function populateAttributeDD(dict){
-      var el = document.getElementById('selectAttribute');
-      el.innerHTML = '';
-      var options = Object.keys(dict).sort();
-      var labels = options.map(option => {
-        return dict[option]['long_name'];
-      });
-      // add back default
-      options.unshift('Select an attribute');
-      labels.unshift('Select an attribute');
-      populateDropdowns(el, options, labels);
-    }
-    
-    
-    function saveAttributeDefinitions(definitionsObject) {
-      DEFINITIONSDICT = definitionsObject;
-      populateAttributeDD(DEFINITIONSDICT);
-    }
-    
-    
-    function clearMap(){
-      layerGroup.clearLayers();
-      legend.remove();
-      info.remove();
-    }
-    
-    function clearDatasets() {
-      document.getElementById('datasetDescription').innerHTML = '';
-    }
-    
-    
-    function clearAttributes(){
-      document.getElementById('attributeDescription').innerHTML = '';
-      populateAttributeDD({});
-    }
-    
-    
-    // load DEFINITIONS sheet from url
-    function updateAttributeDD(selectedDataset, workbookURL, sheetName) {
-      google.script.run.withSuccessHandler(saveAttributeDefinitions).getDefinitions(workbookURL, sheetName);
-    }
-    
-    
-    // update dataset description div
-    function updateDatasetDescription(selectedDataset){
-      // clear attribute element
-      clearAttributes();
-      var el = document.getElementById('datasetDescription');
-      var abstract = DIRECTORY[selectedDataset]['Abstract'];
-      var provider = DIRECTORY[selectedDataset]['Provider'];
-      var external_link = DIRECTORY[selectedDataset]['External Link'];
-      el.innerHTML = `<h5>Dataset Description</h5><b>Abstract</b><p> ${abstract} </p><b>Provider</b><p><a href=${external_link} target="_blank">${provider}</a><em> (external link)</em>`
-    }
-    
-    
-    // load selected dataset
-    function getSelectedDataset(){
-      var selectedDataset = this.value;
-      if(selectedDataset === 'Select a dataset'){
-        clearDatasets();
-        clearAttributes();
-        clearMap();
-      } else {
-        var workbookURL = DIRECTORY[selectedDataset]['Access Link'];
-        SHEETNAME = DIRECTORY[selectedDataset]['Sheet Name'];
-        google.script.run.withSuccessHandler(setData).getData(workbookURL, SHEETNAME);
-        updateDatasetDescription(selectedDataset);
-        updateAttributeDD(selectedDataset, workbookURL, SHEETNAME); 
-      }   
-    }
-    
-    
-    // update attribute description div
-    function updateAttributeDescription(){
-      var el = document.getElementById('attributeDescription');
-      var definition = DEFINITIONSDICT[COLNAME]['definition'];
-      el.innerHTML = '<h5>Attribute Definition</h5><p>' + definition + '</p>'
-    }
-    
-    
-    function displaySelectedAttribute(){
-      if(this.value === 'Select an attribute'){
-        document.getElementById('attributeDescription').innerHTML = '';
-        clearMap();     
-      } else {
-        COLNAME = this.value;
-        COLINDEX = HEADERS.indexOf(COLNAME);
-        dataAsArray = DATA.map(row => row[COLINDEX]);
-        ARRAYMINMAX = getArrayMinMax(dataAsArray);
-        // console.log(dataAsArray);
-        LONGNAME = DEFINITIONSDICT[COLNAME]['long_name'];
-        UNITS = DEFINITIONSDICT[COLNAME]['units'];
-        updateAttributeDescription();
-        showMap();
-      }
-    }
-    
-    
-    // load DOM
-    document.addEventListener('DOMContentLoaded', function(){
-      // open sidebar
-      sidebar.open('home');
-    
-      // fetch municipalities
-      fetchGeoJson('https://raw.githubusercontent.com/eanderson-ei/gtm-apps/main/data/spatial/municipalities.json', setGeoJson);
-    
-      // get directory
-      google.script.run.withSuccessHandler(loadDatasetOptions).getDirectory();
-    
-      // get selected dataset and update attribute options
-      document.getElementById("selectDataset").addEventListener('input', getSelectedDataset);
-    
-      // update map
-      document.getElementById("selectAttribute").addEventListener('input', displaySelectedAttribute);
-    
+  
+      info.update(layer.feature.properties);
+  }
+  
+  
+  // mouse out function
+  function resetHighlight(e) {
+      MUNILAYER.resetStyle(e.target);
+      info.update();
+  }
+  
+  
+  // click function
+  function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+  }
+  
+  
+  // register event functions
+  function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
     });
-    
-    // DEPRECATED
-    // selectAttribute = document.getElementById("selectAttribute");
-        // attributeOptions = DIRECTORY[]
-        // Object.keys(DIRECTORY).forEach(key => {
-        //   var option = document.createElement('option');
-        //   option.textContent = key;
-        //   selectDataset.appendChild(option);
-        // });
-    
-    
-    // // get attribute definitions
-    // function saveAttributeDefinitions(definitionData){
-    //   // {population: {pop_2015: {long_name: '', 'definition': '', 'unit': '', 'dataset': ''}}}
-    //   var headers = definitionData.shift();
-    //   var colHeaders = headers.slice(2);
-    //   var tablesList = [...new Set(definitionData.map(row => row[0]))];
-    
-    //   tablesList.forEach(table => {
-    //     var filteredData = definitionData.filter(row => {
-    //       return row[0] === table
-    //     });
-    //     attributeDict = {}
-    //     filteredData.map(row => {
-    //       colDict = {};   
-    //       attributeName = row[1];
-    //       row = row.slice(2);
-    //       for(let i = 0; i < row.length; i++){
-    //         key = colHeaders[i];
-    //         val = row[i];
-    //         colDict[key] = val;
-    //       };
-    //       attributeDict[attributeName] = colDict;
-    //     });
-    //     DEFINITIONSDICT[table] = attributeDict;
-    //   });
-    //   console.log(DEFINITIONSDICT);
-    //   // setTimeout(() => {showMap()}, 5000);  // TODO: run after user selects dataset from second dropdown 
-    // }
-    
-    
-    
-    // // add select dropdowns
-    // var select = L.control({position: 'bottomleft'});
-    
-    // select.onAdd = function (map) {
-    //   this._div = L.DomUtil.create('div', 'info container');
-    //   this.update();
-    //   return this._div;
-    // }
-    
-    // select.update = function () {
-    //   this._div.innerHTML = `
-    //     <select id="selectDataset" class="form-select" aria-label="Select a dataset">
-    //       <option selected>Select a dataset</option>
-    //     </select>
-    //     <select id="selectAttribute" class="form-select" aria-label="Select an attribute">
-    //       <option selected>Select an attribute</option>
-    //     </select>
-    //   `
-    // }
-    
-    </script>
+  }
+  
+  
+  // style function
+  function style(feature) {
+    return {
+      fillColor: getColor(feature.properties.value),
+      weight: 1,
+      opacity: 1,
+      color: 'white',
+      fillOpacity: 0.7
+    };
+  }
+  
+  
+  // map municipalities with values
+  function mapMunisByValues(){
+    clearMap();
+    MUNILAYER = L.geoJSON(MUNIGEOJSON, {
+      style: style,
+      onEachFeature: onEachFeature,
+    }).addTo(layerGroup);
+  }
+  
+  
+  // convert selected column to a dictionary
+  function convertArrayToDict(){
+    // Codigo1 expected in 3rd column of dataset
+    var valueDict = {};
+    DATA.forEach(row => {
+      valueDict[row[2]] = row[COLINDEX];
+    });
+    return valueDict
+  }
+  
+  
+  // join selected data to municipality geoJSON
+  function joinDataToMunis(){
+    // get data array
+    if(DATA){
+      valueDict = convertArrayToDict();
+    } else {
+      console.log("Data are not yet loaded!")
+    };
+  
+    // update the value property in the json
+    MUNIGEOJSON.features.forEach(obj => {
+      obj.properties.value = valueDict[obj.properties['Codigo1']];
+      });
+  }
+  
+  
+  // store directory data
+  function loadDatasetOptions(data){
+    DIRECTORY = data;
+    var selectDataset = document.getElementById("selectDataset");
+    Object.keys(DIRECTORY).forEach(key => {
+      var option = document.createElement('option');
+      option.textContent = key;
+      selectDataset.appendChild(option);
+    }); 
+  }
+  
+  
+  // show map
+  function showMap(){
+    joinDataToMunis();
+    mapMunisByValues();
+    if(SHOWLEGEND){
+      legend.addTo(map);
+    }
+    info.addTo(map);
+  }
+  
+  
+  // get spreadsheet data and populate globals
+  function setData(data){
+    HEADERS = data.shift();
+    DATA = data.slice();
+  }
+  
+  
+  function populateDropdowns(el, options, labels) {
+    if(labels === undefined) {
+      labels = options;
+    }
+    for(let i = 0; i < options.length; i++) {
+      var optionEl = document.createElement('option');
+      optionEl.setAttribute('value', options[i]);
+      optionEl.textContent = labels[i];
+      el.appendChild(optionEl);
+    }
+  }
+  
+  
+  function populateAttributeDD(dict){
+    var el = document.getElementById('selectAttribute');
+    el.innerHTML = '';
+    var options = Object.keys(dict).sort();
+    var labels = options.map(option => {
+      return dict[option]['long_name'];
+    });
+    // add back default
+    options.unshift('Select an attribute');
+    labels.unshift('Select an attribute');
+    populateDropdowns(el, options, labels);
+  }
+  
+  
+  function saveAttributeDefinitions(definitionsObject) {
+    console.log(definitionsObject);
+    DEFINITIONSDICT = definitionsObject;
+    populateAttributeDD(DEFINITIONSDICT);
+  }
+  
+  
+  function clearMap(){
+    layerGroup.clearLayers();
+    legend.remove();
+    info.remove();
+  }
+  
+  function clearDatasets() {
+    document.getElementById('datasetDescription').innerHTML = '';
+  }
+  
+  
+  function clearAttributes(){
+    document.getElementById('attributeDescription').innerHTML = '';
+    populateAttributeDD({});
+  }
+  
+  
+  // load DEFINITIONS sheet from url
+  function updateAttributeDD(selectedDataset, workbookURL, sheetName) {
+    google.script.run.withSuccessHandler(saveAttributeDefinitions).getDefinitions(workbookURL, sheetName);
+  }
+  
+  
+  // update dataset description div
+  function updateDatasetDescription(selectedDataset){
+    // clear attribute element
+    clearAttributes();
+    var el = document.getElementById('datasetDescription');
+    var abstract = DIRECTORY[selectedDataset]['Abstract'];
+    var provider = DIRECTORY[selectedDataset]['Provider'];
+    var external_link = DIRECTORY[selectedDataset]['External Link'];
+    var data_link = DIRECTORY[selectedDataset]['Access Link'];
+    el.innerHTML = `<h5>Dataset Description</h5><p><a href=${data_link} target="_blank">Get Data</a></p><b>Abstract</b><p> ${abstract} </p><b>Provider</b><p><a href=${external_link} target="_blank">${provider}</a><em> (external link)</em>`
+  }
+  
+  
+  // load selected dataset
+  function getSelectedDataset(){
+    var selectedDataset = this.value;
+    if(selectedDataset === 'Select a dataset'){
+      clearDatasets();
+      clearAttributes();
+      clearMap();
+    } else {
+      var workbookURL = DIRECTORY[selectedDataset]['Access Link'];
+      SHEETNAME = DIRECTORY[selectedDataset]['Sheet Name'];
+      google.script.run.withSuccessHandler(setData).getData(workbookURL, SHEETNAME);
+      updateDatasetDescription(selectedDataset);
+      updateAttributeDD(selectedDataset, workbookURL, SHEETNAME); 
+    }   
+  }
+  
+  
+  // update attribute description div
+  function updateAttributeDescription(){
+    var el = document.getElementById('attributeDescription');
+    var definition = DEFINITIONSDICT[COLNAME]['definition'];
+    el.innerHTML = '<h5>Attribute Definition</h5><p>' + definition + '</p>'
+  }
+  
+  
+  function displaySelectedAttribute(){
+    if(this.value === 'Select an attribute'){
+      document.getElementById('attributeDescription').innerHTML = '';
+      clearMap();     
+    } else {
+      COLNAME = this.value;
+      COLINDEX = HEADERS.indexOf(COLNAME);
+      dataAsArray = DATA.map(row => row[COLINDEX]);
+      dataFiltered = dataAsArray.filter(ele => {
+        if(ele !== "#N/A"){
+          return ele;
+        };
+      });
+      ARRAYMINMAX = getArrayMinMax(dataFiltered);
+      // console.log(dataAsArray);
+      LONGNAME = DEFINITIONSDICT[COLNAME]['long_name'];
+      UNITS = DEFINITIONSDICT[COLNAME]['units'];
+      updateAttributeDescription();
+      showMap();
+    }
+  }
+  
+  
+  // load DOM
+  document.addEventListener('DOMContentLoaded', function(){
+    // open sidebar
+    sidebar.open('home');
+  
+    // fetch municipalities
+    fetchGeoJson('https://raw.githubusercontent.com/eanderson-ei/gtm-apps/main/data/spatial/municipalities.json', setGeoJson);
+  
+    // get directory
+    google.script.run.withSuccessHandler(loadDatasetOptions).getDirectory();
+  
+    // get selected dataset and update attribute options
+    document.getElementById("selectDataset").addEventListener('input', getSelectedDataset);
+  
+    // update map
+    document.getElementById("selectAttribute").addEventListener('input', displaySelectedAttribute);
+  
+  });
+  
+  </script>

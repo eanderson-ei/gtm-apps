@@ -1,0 +1,109 @@
+<script>
+
+    class DDropDown{
+      // https://www.youtube.com/playlist?list=PLRmEk9smitaUDco5Y_bYClnFNCHx1jmWY
+      
+      constructor(data){
+        this.data = data;
+        this.targets=[];
+      }
+    
+      filterData(filtersAsArray){
+        // Use 'All' as option in filter to get All values
+        const filteredData = this.data.filter(r => {
+          return filtersAsArray.every((item, i) => {
+            return item === 'All' || item === '' ? true : r[i].includes(item)
+            })
+          });
+        return filteredData
+      }
+    
+      getUniqueValues(dataAsArray, index){
+        const uniqueOptions = new Set();
+        dataAsArray.forEach(r => {
+          return r[index].split(',').forEach(item => {
+            return item !== '' ? uniqueOptions.add(item.trim()) : {}
+            })
+          });
+        return [...uniqueOptions].sort();
+      }
+    
+      populateDropDown(el, listAsArray){
+        const currentValue = el.value;
+        // clear options
+        el.innerHTML = "";
+        
+        // add All as option
+        const allOption = document.createElement('option');
+        allOption.textContent='All';
+        el.appendChild(allOption);
+        
+        // add dependent options
+        listAsArray.forEach(item => {
+          const option = document.createElement('option');
+          option.textContent = item;
+          el.appendChild(option);
+        });
+        
+        // set value
+        el.value = currentValue === '' ? 'All' : currentValue;
+      }
+    
+      createPopulateDropDownFunction(el, elsDependsOn, elIndex){
+        return () => {
+          var elsDependsOnValues = elsDependsOn.length === 0 ? null : elsDependsOn.map(depEl => depEl.value);
+          elsDependsOnValues.splice(elIndex, 0, '');
+          const dataToUse = elsDependsOn.length === 0 ? this.data : this.filterData(elsDependsOnValues);
+          const listToUse = this.getUniqueValues(dataToUse, elIndex);
+          this.populateDropDown(el, listToUse);
+        }
+      }
+    
+      applyFilters() {
+        return () => {
+          var filterEls = document.querySelectorAll(".filters");
+          var filtersAsArray = [];
+          filterEls.forEach(el => filtersAsArray.push(el.value));
+          var filterIndices = DDCOLS.map(col => HEADERS.indexOf(col));
+          var filteredData = DATA.filter(row => {
+            return filtersAsArray.every((item, i) => {
+              return item === 'All' || item === '' ? true : row[filterIndices[i]].includes(item);
+            });
+          });
+          setFilterData(filteredData);
+        }
+      }
+    
+      add(options){
+        /* options = {target: "level2", dependsOn: ["level1"], elIndex: 2, elProp: 'prop1'} */
+        const el = document.getElementById(options.target);
+        const elsDependsOn = options.dependsOn.length === 0 ? [] : options.dependsOn.map(id => {
+          return document.getElementById(id)
+        });
+        const elsAsArray = elsDependsOn.concat(el);
+        const initFunction = this.createPopulateDropDownFunction(el, elsDependsOn, options.elIndex);
+        const changeFunction = getResults;
+        const targetObject = { el: el, elsDependsOn: elsDependsOn, func: initFunction, elProp: options.elProp };
+        el.addEventListener('change', changeFunction);
+        targetObject.elsDependsOn.forEach(depEl => depEl.addEventListener('change', initFunction));
+        this.targets.push(targetObject);
+        return this;
+      }
+    
+      initialize(){
+        this.targets.forEach(t => t.func());
+        return this;
+      }
+    
+      eazyDropDown(arrayOfIds, arrayOfProps){  // TODO could be single dictionary as input {el: {target: elId, elProp: 'Name'}}
+        arrayOfIds.forEach((item, i) => {
+          const dependsOn = arrayOfIds.filter(val => val !== item);
+          const option = { target: item, dependsOn: dependsOn,  elIndex: i, elProp: arrayOfProps[i]};  
+          this.add(option);
+        });
+        this.initialize();
+      }
+    }
+    
+    </script>
+    

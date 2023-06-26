@@ -6,9 +6,10 @@ This repo stores and serves applications, reports, tutorials, and data for the U
 
 ### Apps
 
-Applications are stored in the `apps/` directory. Many of the applications are available in the USAID/Guatemala Data Hub. Find it at [sites.google.com/guatemala-data-hub](https://www.sites.google.com/guatemala-data-hub).
+Applications are stored in the `apps/` directory. Many of the applications are available in the [USAID/Guatemala Data Hub](https://sites.google.com/usaid.gov/guatemaladatahub).
 
 * **Data Catalog**: a searchable Google Sheets-based data catalog
+
 * **Map Viewer**: create choropleths from tabular data
 * **USAID/Guatemala Activity Location Data Portal (Public)**: Implementing Partner Activity Location Data generalized for public consumption.
 

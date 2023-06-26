@@ -1,4 +1,4 @@
-# Data Catalog
+# Map Viewer
 
 **Create choropleths from tabular data**
 
@@ -26,6 +26,7 @@ To replicate this project:
      * Provide the hyperlink to each asset in the *Asset Link* column.
      * Define the 
 4. Create a new Google Apps Script project and copy the Apps Script code found in the `scripts/standalone` directory. We recommend using `clasp`, see guidance below.
+5. Update the variable `DIRECTORYURL` in `Code.gs` with the URL of your copy of the Data Inventory template.
 
 *The Data Inventory template includes a containerized version of the Data Catalog that adds a **Search** menu and *Search Datasets* menu item to launch the search bar as a modal dialog. See that project for more information.
 

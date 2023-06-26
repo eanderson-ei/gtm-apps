@@ -14,17 +14,37 @@ The Activity Location Data Portal aggregates exact site location data using the 
 
 ## How to get it
 
-To replicate this project:
+The best way to get this project is to install [Atlas](https://github.com/eanderson-ei/gtm-dms-alpha). Atlas includes the Activity Location Data template, Activity Location Data Compiler, and scripts necessary to aggregate and process Activity Location Data. Follow these instructions to install this web app within Atlas.
 
-1. Copy this [Activity Location Data template](https://docs.google.com/spreadsheets/d/1sijmssVQYOq8hpHC4msTogvCZJXN0CsX8lbcjnRO6a8/copy) and collect Activity Location Data. See [ADS 579mab](https://www.usaid.gov/ads/policy/500/579mab) for details.
-2. Run the script `h3_aggregate.py` (also available as a series of Google Colab notebooks if you do not have access to Python locally, see doc string in script file). 
-   * Modify the boundary for clipping the hex grid to your boundary of choice.
-   * Download the Activity Location Data template as a `.csv` and specify the path in the script. 
-3. Upload the generalized Activity Location Data (the output of `h3_aggregate.py`) to a Google Sheet.
-4. Create a new Google Apps Script project and copy the Apps Script code found in the `scripts/standalone` directory. We recommend using `clasp`, see guidance below.
-   * Specify the path to your hex grid data (output of `h3_aggregate.py`; you can serve it using a raw link in GitHub in your fork of this repo).
-   * Specify the path to your Google Sheet containing generalized Activity Location Data (from step 3). 
-   * Specify the path to any additional context layers (we provide schools and health sites--see bottom of `js.html`).
+* Create a new Google Apps Script project and copy the Apps Script code found in the `scripts/standalone` directory. We recommend using `clasp`, see guidance below.
+
+* Run the script `h3_clip.py` in the `scripts/` directory to get the geometries for H3 indices in your geography of choice. Copy and paste this Python code into a [Google Colab](https://colab.research.google.com/) notebook if you do not have Python installed locally. Update the `country` and `resolution` parameters before running. 
+* Specify the path to your hex grid data (output of `h3_clip.py`). You can serve it using a raw link in GitHub in your fork of this repo.
+* Specify the path to your Google Sheet containing generalized Activity Location Data (the `Activity Location Data Compiler` in `Atlas/Modules/Activity Location Data`). 
+* Specify the path to any additional context layers (we provide schools and health sites--see bottom of `js.html`).
+
+To set it up independently, you will need to convert point locations to H3 indices. The `script/` directory includes JavaScript and Python functions for this purpose to use in your application. The application expects a Google Sheet of generalized Activity Location Data with these columns:
+
+| attribute                | definition                                                   | units                    | data_type        |
+| ------------------------ | ------------------------------------------------------------ | ------------------------ | ---------------- |
+| activity_name            | The official name of the Activity                            |                          | text             |
+| activity_id              | The official (DIS or Activity DB) ID number of the Activity  |                          | integer          |
+| latitude                 | A coordinate in decimal degrees in CRS WGS84 to 4-5 decimal points | decimal degrees (WGS 84) | double precision |
+| longitude                | A coordinate in decimal degrees in CRS WGS84 to 4-5 decimal points | decimal degrees (WGS 84) | double precision |
+| location_name            | The name or brief description of the location where the implementation activity took place |                          | text             |
+| start_date               | The date the implementation activity took place or started   |                          | text             |
+| end_date                 | The date the implementation activity ended, if the activity  |                          | text             |
+| location_type            | The category of the site location type, selected from a list of options |                          | text             |
+| location_type_other      | If the exact site location type is other, a brief description to characterize the site location |                          | text             |
+| location_data_type       | Whether an implementation location, beneficiary location, or both |                          | text             |
+| intervention_status      | Whether the implementation activity is ongoing or completed  |                          | text             |
+| intervention_cost        | The cost in $USD of the implementation activity              | USD                      | money            |
+| intervention_description | A brief description of the intervention                      |                          | text             |
+| h3_index                 | H3 index for the exact site location                         |                          | text             |
+| department               | Department of the exact site location                        |                          | text             |
+| municipality             | Municipality of the exact site location                      |                          | text             |
+| source                   | The URL of the Activity Template                             |                          | text             |
+| updated                  | Datetime last updated                                        |                          | text             |
 
 ### Using clasp with Google Apps Script
 

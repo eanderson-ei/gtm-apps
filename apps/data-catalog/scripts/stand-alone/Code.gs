@@ -1,4 +1,5 @@
-const ssid = '1Tig8xn0uXRwOPJqBKOJsaYcbxQVwWFVBcLBLB9AQ1rk'
+const SSID = '13x2KDyWpAarRYBrtfP-i0sW9Govlw-PeC5On1ZoqKrs';
+const SHEETNAME = 'directory'
 
 
 function doGet(e) {
@@ -14,12 +15,9 @@ function include(filename) {
 
 
 function getData(){
-  var ss = SpreadsheetApp.openById(ssid);
-  var ws = ss.getSheetByName('directory');
+  var ss = SpreadsheetApp.openById(SSID);
+  var ws = ss.getSheetByName(SHEETNAME);
   var data = ws.getRange(1, 1, ws.getLastRow(), ws.getLastColumn()).getValues();
-
-  // pop headers
-  var headers = data.shift();
 
   // remove blank and N/A rows
   data = data.filter(row => row[0] !== '' && row[0] !== "#N/A");

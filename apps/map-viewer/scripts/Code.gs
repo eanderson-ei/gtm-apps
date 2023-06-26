@@ -1,3 +1,5 @@
+const DIRECTORYURL = "https://docs.google.com/spreadsheets/d/13x2KDyWpAarRYBrtfP-i0sW9Govlw-PeC5On1ZoqKrs/"
+
 function doGet(e) {
   return HtmlService.createTemplateFromFile('map').evaluate();
 }
@@ -32,12 +34,14 @@ function convertArrayToJSON(array){
       childDict[headerCols[i]] = row[i]
     }
     parentDict[keyName] = childDict;
-  })
+  });
   return parentDict
 }
 
 
 function getData(sheetURL, sheetName){
+  console.log(sheetURL);
+  console.log(sheetName);
   var ss = SpreadsheetApp.openByUrl(sheetURL);
   var ws = ss.getSheetByName(sheetName);
   var data = ws.getDataRange().getValues();
@@ -48,7 +52,7 @@ function getData(sheetURL, sheetName){
 
 function getDirectory(){
   // return dict of datasets and their access urls
-  var sheetURL = "https://docs.google.com/spreadsheets/d/1Tig8xn0uXRwOPJqBKOJsaYcbxQVwWFVBcLBLB9AQ1rk/";
+  var sheetURL = DIRECTORYURL;
   var datasets = getData(sheetURL, 'directory');
   
   // filter mappable datasets
@@ -71,7 +75,12 @@ function getDefinitions(sheetURL, sheetName) {
   var headers = definitionsTable.shift();
   // filter by sheet name and mappability
   var filteredDefinitions = definitionsTable.filter(row => {
-    return row[0] === sheetName && row[6] === 'Numeric'
+    return row[0] === sheetName && 
+    (
+      ['integer', 'real', 'double precision', 'numeric', 'money'].indexOf(row[6]) > -1 ||
+      (['categorical'].indexOf(row[4]) > -1 && row[9] !== '')
+    ) && 
+    ['Codigo', 'Codigo1'].indexOf(row[1]) == -1;
   });
   
   // add back headers
