@@ -17,7 +17,7 @@ The Data Catalog is simple Google Apps Script search front end for a collection 
 To replicate this project:
 
 1. Organize your data assets in a Google Drive folder (or any other method you prefer) such that each data asset has its own unique hyperlink. 
-2. Copy this [Data Inventory template](https://docs.google.com/spreadsheets/d/1uZEq8SEx9LTki4XknoDsio4JdyHGJOf1zJbvF56iieM/copy)* and populate with an inventory of your data assets, providing the hyperlink to each asset in the *Asset Link* column.
+2. Copy this [Data Inventory template](https://docs.google.com/spreadsheets/d/13idh3QBdzND8MExrarSpFADlYFOzdnF2OAWsquurgRU/template/preview)* and populate with an inventory of your data assets, providing the hyperlink to each asset in the *Asset Link* column.
    * The **providers** sheet (optional) lists all data sources
    * The **directory** sheet lists all data assets
 3. Create a new Google Apps Script project and copy the Apps Script code found in the `scripts/standalone` directory. We recommend using `clasp`, see guidance below.
