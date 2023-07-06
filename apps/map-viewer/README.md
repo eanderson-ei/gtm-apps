@@ -20,7 +20,7 @@ To replicate this project:
 2. Organize data assets in one or more Google Sheets using this [Dataset template](https://docs.google.com/spreadsheets/d/1DqNbMmfpTRe8g6wNdmHzVi3SsiYPEKwnichz6avU6K4/template/preview). Describe each attribute in the **Definitions** tab. 
    * Each data asset must include a unique hyperlink; a sheet in a Google Sheet document will have its own hyperlink.
    * Each data asset must include a column that can be joined to the geospatial data.
-3. Copy this [Data Inventory template](https://docs.google.com/spreadsheets/d/1uZEq8SEx9LTki4XknoDsio4JdyHGJOf1zJbvF56iieM/copy)* and populate with an inventory of your data assets.
+3. Copy this [Data Inventory template](https://docs.google.com/spreadsheets/d/13idh3QBdzND8MExrarSpFADlYFOzdnF2OAWsquurgRU/template/preview)* and populate with an inventory of your data assets.
    * The **providers** sheet (optional) lists all data sources
    * The **directory** sheet lists all data assets
      * Provide the hyperlink to each asset in the *Asset Link* column.
