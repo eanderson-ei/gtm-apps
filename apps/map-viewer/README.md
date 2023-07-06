@@ -17,7 +17,7 @@ Map Viewer is simple Google Apps Script map platform built on Leaflet.  Users se
 To replicate this project:
 
 1. Prepare and serve geospatial layer(s) online in GeoJSON format (we use raw links stored in this repo (at `../data/shp`)). This layer should define the boundaries over which the choropleth will be visualized.
-2. Organize data assets in one or more Google Sheets using this [Dataset template](https://docs.google.com/spreadsheets/d/1DqNbMmfpTRe8g6wNdmHzVi3SsiYPEKwnichz6avU6K4/copy). Describe each attribute in the **Definitions** tab. 
+2. Organize data assets in one or more Google Sheets using this [Dataset template](https://docs.google.com/spreadsheets/d/1DqNbMmfpTRe8g6wNdmHzVi3SsiYPEKwnichz6avU6K4/template/preview). Describe each attribute in the **Definitions** tab. 
    * Each data asset must include a unique hyperlink; a sheet in a Google Sheet document will have its own hyperlink.
    * Each data asset must include a column that can be joined to the geospatial data.
 3. Copy this [Data Inventory template](https://docs.google.com/spreadsheets/d/1uZEq8SEx9LTki4XknoDsio4JdyHGJOf1zJbvF56iieM/copy)* and populate with an inventory of your data assets.
